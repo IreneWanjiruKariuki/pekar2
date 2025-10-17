@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Job Card - Pekar Industrial</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <link rel="stylesheet" href="card.css">
+    <link rel="stylesheet" href="css/card.css">
     <script>
         function resetJobNumber() {
             localStorage.removeItem('lastJobNumber');
@@ -114,7 +114,7 @@
     ?>
 
     <div class="cont">
-        <img src="images/image.png" alt="Pekar Industrial Logo">
+        <!--<img src="images/image.png" alt="Pekar Industrial Logo">-->
     </div>
 
     <form id="jobCardForm" method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
@@ -222,7 +222,7 @@
             function generateJobNumber() {
                 let lastJobNumber = localStorage.getItem('lastJobNumber');
                 if (!lastJobNumber) {
-                    lastJobNumber = 23;
+                    lastJobNumber = 10;
                 }
                 const newJobNumber = parseInt(lastJobNumber) + 1;
                 localStorage.setItem('lastJobNumber', newJobNumber);
