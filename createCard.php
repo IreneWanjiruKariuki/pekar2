@@ -27,10 +27,10 @@
                 <span class="logo-subtext">Industrial & Construction</span>
             </div>
             <ul class="nav-menu">
-                <li><a href="#" class="nav-link active">Home</a></li>
-                <li><a href="viewCard.html" class="nav-link">Job cards</a></li>
-                <li><a href="viewNote.html" class="nav-link">Delivery notes</a></li>
-                <li><a href="viewInvoice.html" class="nav-link">Invoices</a></li>
+                <li><a href="home.html" class="nav-link active">Home</a></li>
+                <li><a href="viewCard.php" class="nav-link">Job cards</a></li>
+                <li><a href="viewNote.php" class="nav-link">Delivery notes</a></li>
+                <li><a href="viewInvoice.php" class="nav-link">Invoices</a></li>
             </ul>
         </div>
     </nav>
@@ -247,7 +247,7 @@
             }
 
             const img = new Image();
-            img.src = 'images/image.png';
+            img.src = 'image.png';
             doc.addImage(img, 'PNG', 10, 10, 50, 35);
             doc.setFont("helvetica", "normal");
             doc.setFontSize(10);
