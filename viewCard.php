@@ -385,64 +385,165 @@
 
             const doc = new jsPDF();
 
+            // Add Image at the top left corner
+            const img = new Image();
+            img.src = 'image.png'; // Replace with your image path
+            doc.addImage(img, 'PNG', 10, 10, 50, 35);
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(10);
+            doc.setTextColor(128, 128, 128);
+            doc.text("Plumbing works, Mechanical & Electrical plant installations HVAC, Infra-Red thermography and other maintenance solutions and General Contractors", 70, 15, { maxWidth: 140 });
+            doc.text("Location: Kasarani Mwiki Road", 70, 25);
+            doc.text("P.O BOX 4384-00200 City Square Nairobi", 70, 31);
+            doc.text("Email: pekar.industrial@gmail.com", 70, 37);
+            doc.text("Cell Phone: 0722301274/0721301274", 70, 43);
+
             // Header
             doc.setFont('helvetica', 'bold');
-            doc.setFontSize(16);
-            doc.text('JOB CARD / EQUIPMENT HANDOVER', 15, 15);
-            doc.setFontSize(10);
+            doc.setFontSize(18);
+            doc.setTextColor(0, 0, 0);
+            doc.setLineWidth(0.7);
+            doc.rect(15, 50, 180, 10);
+            doc.text('JOB CARD / EQUIPMENT HANDOVER', 55, 57);
             doc.setFont('helvetica', 'normal');
-            doc.text(`Date: ${card.date || ''}`, 15, 25);
-            doc.text(`Job No: ${card.jobNo || ''}`, 120, 25);
-            doc.text(`Customer: ${card.customer_name || ''}`, 15, 32);
-            doc.text(`Technician: ${card.technician_name || ''}`, 15, 39);
-            doc.text(`LPO/REF: ${card.lpo_no || ''}`, 120, 39);
-            doc.text(`Time Job Started: ${card.date_started || ''}`, 15, 46);
-            doc.text(`Time Job Finished: ${card.date_finished || ''}`, 120, 46);
+
+            // Adding form details
+            doc.setFontSize(11);
+            doc.setLineWidth(0.1);
+
+            // Adding Date and Job Number
+            doc.setTextColor(50, 50, 50);
+            doc.text(`DATE:`, 20, 65);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`${card.date || ''}`, 35, 65);
+            doc.setTextColor(50, 50, 50);
+            doc.text(`JOB NO:`, 140, 65);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`${card.jobNo || ''}`, 160, 65);
+
+            // Customer and Technician Info
+            doc.rect(20, 69, 180, 7);
+            doc.setTextColor(50, 50, 50);
+            doc.text(`CUSTOMER:`, 22, 73.5);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`${card.customer_name || ''}`, 50, 73.5);
+
+            doc.rect(20, 76, 90, 8);
+            doc.rect(20, 76, 40, 8);
+            doc.setTextColor(50, 50, 50);
+            doc.text("TECHNICIAN :", 22, 80.5, { maxWidth: 40 });
+            doc.setTextColor(0, 0, 0);
+            doc.text(`${card.technician_name || ''}`, 62, 80.5);
+            
+            doc.rect(110, 76, 90, 8);
+            doc.rect(110, 76, 40, 8);
+            doc.setTextColor(50, 50, 50);
+            doc.text("LPO/REF:", 112, 80.5, { maxWidth: 50 });
+            doc.setTextColor(0, 0, 0);
+            doc.text(`${card.lpo_no || ''}`, 152, 80.5);
+            
+            doc.rect(20, 84, 90, 8);
+            doc.rect(20, 84, 40, 8);
+            doc.setTextColor(50, 50, 50);
+            doc.text("JOB STARTED:", 22, 88.5, { maxWidth: 40 });
+            doc.setTextColor(0, 0, 0);
+            doc.text(`${card.date_started || ''}`, 62, 88.5);
+            
+            doc.rect(110, 84, 90, 8);
+            doc.rect(110, 84, 40, 8);
+            doc.setTextColor(50, 50, 50);
+            doc.text("JOB FINISHED:", 112, 88.5, { maxWidth: 40 });
+            doc.setTextColor(0, 0, 0);
+            doc.text(`${card.date_finished || ''}`, 152, 88.5);
 
             // Item Descriptions
-            let y = 55;
             doc.setFont('helvetica', 'bold');
-            doc.text('Item/Machine Serial Number', 15, y);
-            doc.text('Job Description/Instruction', 80, y);
+            doc.setTextColor(128, 128, 128);
+
+            const itemHeader = (doc,yPos) =>{
+            doc.text("ITEM/MACHINE SERIAL NO", 22, yPos, { maxWidth: 70 });
+            doc.text("JOB DESCRIPTION/INSTRUCTION", 85, yPos);
+            };
+
+            let yPos = 100;
+            itemHeader(doc, yPos);
+            yPos += 5;
+
             doc.setFont('helvetica', 'normal');
-            y += 5;
+            doc.setTextColor(0, 0, 0);
+
             items.forEach(item => {
-                doc.text(item.machine_serial_number || '', 15, y);
-                doc.text(doc.splitTextToSize(item.job_description || '', 110), 80, y);
-                y += 8;
-                if (y > 270) { doc.addPage(); y = 20; }
+                if (yPos > 270) {
+                    doc.addPage();
+                    yPos = 20;
+                    itemHeader(doc, yPos);
+                    yPos += 5;
+                }
+
+                const jobDescription = item.job_description || '';
+                const jobDescriptionLines = doc.splitTextToSize(jobDescription, 110);
+                const lineHeight = 4.5;
+                const itemHeight = jobDescriptionLines.length * lineHeight;
+                doc.text(item.machine_serial_number || '', 22, yPos+ lineHeight);
+                doc.text(`${jobDescription}`, 85, yPos+ lineHeight, { maxWidth: 110 });
+                yPos += itemHeight + 1;
             });
 
-            y += 5;
+        
             // Spare Parts
-            doc.setFont('helvetica', 'bold');
-            doc.text('Spares Used', 15, y);
-            doc.text('Qty', 80, y);
-            doc.text('Unit Cost', 100, y);
-            doc.text('Total', 130, y);
-            doc.setFont('helvetica', 'normal');
-            y += 5;
+            const sparesHeader = (doc, yPos) =>{
+            doc.setTextColor(128, 128, 128);
+            doc.setFont("helvetica", "bold");
+            doc.text("SPARES USED", 20, yPos + 7);
+            doc.text("QTY", 104, yPos + 7);
+            doc.text("UNIT COST", 130, yPos + 7);
+            doc.text("TOTAL", 165, yPos + 7);
+            doc.setTextColor(0, 0, 0);
+            doc.setFont("helvetica", "normal");
+            };
+
+            sparesHeader(doc, yPos);
+            yPos += 6.5;
+
             spares.forEach(spare => {
-                doc.text(spare.spare_part || '', 15, y);
-                doc.text(String(spare.quantity || ''), 80, y);
-                doc.text(String(spare.unit_cost || ''), 100, y);
-                doc.text(String(spare.total || ''), 130, y);
-                y += 8;
-                if (y > 270) { doc.addPage(); y = 20; }
+                if (yPos > 270) {
+                    doc.addPage();
+                    yPos = 20;
+                    sparesHeader(doc, yPos);
+                    yPos += 5;
+                }
+                doc.text(spare.spare_part || '', 20, yPos+7);
+                doc.text(String(spare.quantity || ''), 105, yPos+7);
+                doc.text(String(spare.unit_cost || ''), 130, yPos+7);
+                doc.text(String(spare.total || ''), 165, yPos+7);
+                yPos += 6.5;
             });
 
-            y += 10;
+            if (yPos > 270) {
+                doc.addPage();
+                yPos = 20;
+            }
+
             doc.setFont('helvetica', 'bold');
-            doc.text("Installation, testing, and commissioning done and system left in good working condition.", 15, y, { maxWidth: 180 });
-            y += 10;
+            doc.text("Installation, testing, and commissioning done and system left in good working condition.", 20, yPos+10, { maxWidth: 180 });
+            if (yPos > 270) {
+                doc.addPage();
+                yPos = 20;
+            }
             doc.setFont('helvetica', 'normal');
-            doc.text("Technician's Name and Signature: ..........................................................", 15, y);
-            y += 10;
+            doc.text("Technician's Name and Signature: ..........................................................", 20, yPos+17.5);
+            if (yPos > 270) {
+                doc.addPage();
+                yPos = 20;
+            }
             doc.setFont('helvetica', 'bold');
-            doc.text("Confirmed by client representative.", 15, y);
-            y += 10;
+            doc.text("Confirmed by client representative.", 20, yPos+25, { maxWidth: 180 });
+            if (yPos > 270) {
+                doc.addPage();
+                yPos = 20;
+            }
             doc.setFont('helvetica', 'normal');
-            doc.text("Client's Name and Signature: ...............................................................", 15, y);
+            doc.text("Client's Name and Signature: ...............................................................", 20, yPos+32.5);
 
             doc.save(`JobCard_${card.jobNo || 'Unknown'}.pdf`);
         }
