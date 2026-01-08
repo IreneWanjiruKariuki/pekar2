@@ -1,3 +1,33 @@
+<?php
+    // Database connection
+    $conn = new mysqli('localhost', 'root', '', 'pekar2');
+
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    if(isset($_GET["DelId"])){
+        $DelId=$_GET["DelId"]; 
+    
+        // Delete related rows from card_item
+        $del_items = "DELETE FROM card_item WHERE jobNo='$DelId'";
+        $conn->query($del_items);
+
+        // Delete related rows from card_spare
+        $del_spares = "DELETE FROM card_spare WHERE jobNo='$DelId'";
+        $conn->query($del_spares);
+        
+        // sql to delete a record
+        $del_card = "DELETE FROM card WHERE jobNo='$DelId' LIMIT 1";
+    
+        if ($conn->query($del_card) === TRUE) {
+            header("Location:viewCard.php");
+            exit();
+        } else {
+            echo "Error deleting record: " . $conn->error;
+        }
+    }
+    ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -273,36 +303,7 @@
             }
         }
     </style>
-    <?php
-    // Database connection
-    $conn = new mysqli('localhost', 'root', '', 'pekar2');
-
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
-
-    if(isset($_GET["DelId"])){
-        $DelId=$_GET["DelId"]; 
     
-        // Delete related rows from card_item
-        $del_items = "DELETE FROM card_item WHERE jobNo='$DelId'";
-        $conn->query($del_items);
-
-        // Delete related rows from card_spare
-        $del_spares = "DELETE FROM card_spare WHERE jobNo='$DelId'";
-        $conn->query($del_spares);
-        
-        // sql to delete a record
-        $del_card = "DELETE FROM card WHERE jobNo='$DelId' LIMIT 1";
-    
-        if ($conn->query($del_card) === TRUE) {
-            header("Location:viewCard.php");
-            exit();
-        } else {
-            echo "Error deleting record: " . $conn->error;
-        }
-    }
-    ?>
 </head>
 <body>
     <nav>
@@ -369,12 +370,81 @@
     </div>
 
     <script>
-        async function generatePDF() {
+        async function generatePDF(jobNo) {
             const { jsPDF } = window.jspdf;
+            // Fetch all card data from the server
+            const response = await fetch(`getCardData.php?jobNo=${encodeURIComponent(jobNo)}`);
+            const data = await response.json();
+            if (!data.card) {
+                alert('Could not fetch job card data.');
+                return;
+            }
+            const card = data.card;
+            const items = data.items;
+            const spares = data.spares;
+
             const doc = new jsPDF();
 
-            // Save the PDF
-            doc.save(`JobCard_${jobNo}.pdf`);
+            // Header
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(16);
+            doc.text('JOB CARD / EQUIPMENT HANDOVER', 15, 15);
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`Date: ${card.date || ''}`, 15, 25);
+            doc.text(`Job No: ${card.jobNo || ''}`, 120, 25);
+            doc.text(`Customer: ${card.customer_name || ''}`, 15, 32);
+            doc.text(`Technician: ${card.technician_name || ''}`, 15, 39);
+            doc.text(`LPO/REF: ${card.lpo_no || ''}`, 120, 39);
+            doc.text(`Time Job Started: ${card.date_started || ''}`, 15, 46);
+            doc.text(`Time Job Finished: ${card.date_finished || ''}`, 120, 46);
+
+            // Item Descriptions
+            let y = 55;
+            doc.setFont('helvetica', 'bold');
+            doc.text('Item/Machine Serial Number', 15, y);
+            doc.text('Job Description/Instruction', 80, y);
+            doc.setFont('helvetica', 'normal');
+            y += 5;
+            items.forEach(item => {
+                doc.text(item.machine_serial_number || '', 15, y);
+                doc.text(doc.splitTextToSize(item.job_description || '', 110), 80, y);
+                y += 8;
+                if (y > 270) { doc.addPage(); y = 20; }
+            });
+
+            y += 5;
+            // Spare Parts
+            doc.setFont('helvetica', 'bold');
+            doc.text('Spares Used', 15, y);
+            doc.text('Qty', 80, y);
+            doc.text('Unit Cost', 100, y);
+            doc.text('Total', 130, y);
+            doc.setFont('helvetica', 'normal');
+            y += 5;
+            spares.forEach(spare => {
+                doc.text(spare.spare_part || '', 15, y);
+                doc.text(String(spare.quantity || ''), 80, y);
+                doc.text(String(spare.unit_cost || ''), 100, y);
+                doc.text(String(spare.total || ''), 130, y);
+                y += 8;
+                if (y > 270) { doc.addPage(); y = 20; }
+            });
+
+            y += 10;
+            doc.setFont('helvetica', 'bold');
+            doc.text("Installation, testing, and commissioning done and system left in good working condition.", 15, y, { maxWidth: 180 });
+            y += 10;
+            doc.setFont('helvetica', 'normal');
+            doc.text("Technician's Name and Signature: ..........................................................", 15, y);
+            y += 10;
+            doc.setFont('helvetica', 'bold');
+            doc.text("Confirmed by client representative.", 15, y);
+            y += 10;
+            doc.setFont('helvetica', 'normal');
+            doc.text("Client's Name and Signature: ...............................................................", 15, y);
+
+            doc.save(`JobCard_${card.jobNo || 'Unknown'}.pdf`);
         }
     </script>
 
