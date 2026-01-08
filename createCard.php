@@ -168,9 +168,23 @@
         </div>
 
         <input type="submit" value="💾 Save Job Card">
+            <input type="hidden" name="jobNumber" id="jobNumber">
     </form>
 
     <script>
+            // Generate job number on form submit
+            document.getElementById('jobCardForm').addEventListener('submit', function(e) {
+                var hiddenJobNumber = document.getElementById('jobNumber');
+                if (!hiddenJobNumber.value) {
+                    let lastJobNumber = localStorage.getItem('lastJobNumber');
+                    if (!lastJobNumber) {
+                        lastJobNumber = 10;
+                    }
+                    const newJobNumber = parseInt(lastJobNumber) + 1;
+                    localStorage.setItem('lastJobNumber', newJobNumber);
+                    hiddenJobNumber.value = `0${newJobNumber}`;
+                }
+            });
         let sparePartCount = 1;
         let itemCount = 1;
 
