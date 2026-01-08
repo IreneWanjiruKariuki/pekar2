@@ -273,6 +273,36 @@
             }
         }
     </style>
+    <?php
+    // Database connection
+    $conn = new mysqli('localhost', 'root', '', 'pekar2');
+
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    if(isset($_GET["DelId"])){
+        $DelId=$_GET["DelId"]; 
+    
+        // Delete related rows from card_item
+        $del_items = "DELETE FROM card_item WHERE jobNo='$DelId'";
+        $conn->query($del_items);
+
+        // Delete related rows from card_spare
+        $del_spares = "DELETE FROM card_spare WHERE jobNo='$DelId'";
+        $conn->query($del_spares);
+        
+        // sql to delete a record
+        $del_card = "DELETE FROM card WHERE jobNo='$DelId' LIMIT 1";
+    
+        if ($conn->query($del_card) === TRUE) {
+            header("Location:viewCard.php");
+            exit();
+        } else {
+            echo "Error deleting record: " . $conn->error;
+        }
+    }
+    ?>
 </head>
 <body>
     <nav>
@@ -292,29 +322,7 @@
         <img src="images/image.png" alt="Pekar Industrial & Construction Logo">
     </div>
 
-    <?php
-    if(isset($_GET["DelId"])){
-        $DelId=$_GET["DelId"]; 
     
-        // Delete related rows from card_item
-        $del_items = "DELETE FROM card_item WHERE jobNo='$DelId'";
-        $conn->query($del_items);
-
-        // Delete related rows from card_spares
-        $del_spares = "DELETE FROM card_spares WHERE jobNo='$DelId'";
-        $conn->query($del_spares);
-        
-        // sql to delete a record
-        $del_card = "DELETE FROM card WHERE jobNo='$DelId' LIMIT 1";
-    
-        if ($conn->query($del_card) === TRUE) {
-            header("Location:viewcard.php");
-            exit();
-        } else {
-            echo "Error deleting record: " . $conn->error;
-        }
-    }
-    ?>
 
     <h1>Job Cards</h1>
 
@@ -331,13 +339,7 @@
             </thead>
             <tbody>
                 <?php
-                // Database connection
-                $conn = new mysqli('localhost', 'root', '', 'pekar2');
-
-                if ($conn->connect_error) {
-                    die("Connection failed: " . $conn->connect_error);
-                }
-
+                
                 // Fetch job cards with only the required columns
                 $sql="SELECT jobNo, customer_name, lpo_no, date FROM card ORDER BY jobNo DESC";
                 $result = $conn->query($sql);
