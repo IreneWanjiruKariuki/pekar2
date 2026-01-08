@@ -332,7 +332,7 @@
             <tbody>
                 <?php
                 // Database connection
-                $conn = new mysqli('localhost', 'root', '', 'pekar');
+                $conn = new mysqli('localhost', 'root', '', 'pekar2');
 
                 if ($conn->connect_error) {
                     die("Connection failed: " . $conn->connect_error);
