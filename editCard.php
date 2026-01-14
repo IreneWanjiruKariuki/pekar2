@@ -49,51 +49,64 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Job Card</title>
     <link rel="stylesheet" href="css/card.css">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        form { max-width: 800px; margin: 2rem auto; background: #fff; padding: 1rem; border-radius: 8px; }
+        label { display: block; margin-top: 1rem; }
+        .container { max-width: 800px; margin: 2rem auto; background: #fff; padding: 1rem; border-radius: 8px; }
+        input, textarea { width: 100%; padding: 0.5rem; margin-top: 0.25rem; }
+        .item-description, .spare-part { border-bottom: 1px solid #eee; margin-bottom: 1rem; padding-bottom: 1rem; }
+        .remove-btn { background: #e34343ff; margin-left: 1rem; margin-top: 1.5rem; }
+    </style>
 </head>
 <body>
-    <h2>Edit Job Card</h2>
-    <form method="POST">
-        <label>Date:</label>
-        <input type="date" name="date" value="<?php echo htmlspecialchars($card['date']); ?>" required><br>
-        <label>Customer:</label>
-        <input type="text" name="customerName" value="<?php echo htmlspecialchars($card['customer_name']); ?>" required><br>
-        <label>Technician Name:</label>
-        <input type="text" name="technicianName" value="<?php echo htmlspecialchars($card['technician_name']); ?>" required><br>
-        <label>LPO/REF:</label>
-        <input type="text" name="lpo" value="<?php echo htmlspecialchars($card['lpo_no']); ?>" required><br>
-        <label>Time Job Started:</label>
-        <input type="date" name="dateStarted" value="<?php echo htmlspecialchars($card['date_started']); ?>" required><br>
-        <label>Time Job Finished:</label>
-        <input type="date" name="dateFinished" value="<?php echo htmlspecialchars($card['date_finished']); ?>" required><br>
-        <h3>Item Description</h3>
-        <div id="itemDescriptionContainer">
-        <?php $i = 0; while($row = $items->fetch_assoc()): ?>
-            <div class="item-description">
-                <label>Item/Machine Serial Number:</label>
-                <input type="text" name="machineSerialNumbers[]" value="<?php echo htmlspecialchars($row['machine_serial_number']); ?>" required>
-                <label>Job Description/Instruction:</label>
-                <textarea name="jobDescriptions[]" required><?php echo htmlspecialchars($row['job_description']); ?></textarea>
+    <div class="container">
+        <h2>Edit Job Card</h2>
+        <form method="POST">
+            <label>Date:</label>
+            <input type="date" name="date" value="<?php echo htmlspecialchars($card['date']); ?>" required><br>
+            <label>Customer:</label>
+            <input type="text" name="customerName" value="<?php echo htmlspecialchars($card['customer_name']); ?>" required><br>
+            <label>Technician Name:</label>
+            <input type="text" name="technicianName" value="<?php echo htmlspecialchars($card['technician_name']); ?>" required><br>
+            <label>LPO/REF:</label>
+            <input type="text" name="lpo" value="<?php echo htmlspecialchars($card['lpo_no']); ?>" required><br>
+            <label>Time Job Started:</label>
+            <input type="date" name="dateStarted" value="<?php echo htmlspecialchars($card['date_started']); ?>" required><br>
+            <label>Time Job Finished:</label>
+            <input type="date" name="dateFinished" value="<?php echo htmlspecialchars($card['date_finished']); ?>" required><br>
+            <h3>Item Description</h3>
+            <div id="itemDescriptionContainer">
+            <?php $i = 0; while($row = $items->fetch_assoc()): ?>
+                <div class="item-description">
+                    <label>Item/Machine Serial Number:</label>
+                    <input type="text" name="machineSerialNumbers[]" value="<?php echo htmlspecialchars($row['machine_serial_number']); ?>" required>
+                    <label>Job Description/Instruction:</label>
+                    <textarea name="jobDescriptions[]" required><?php echo htmlspecialchars($row['job_description']); ?></textarea>
+                    <button type="button" class="remove-btn" onclick="this.parentElement.remove()">Remove</button>
+                </div>
+            <?php $i++; endwhile; ?>
             </div>
-        <?php $i++; endwhile; ?>
-        </div>
-        <button type="button" onclick="addItem()">+ Add Item/Machine</button>
-        <h3>Spare Parts Used</h3>
-        <div id="sparePartsContainer">
-        <?php $i = 0; while($row = $spares->fetch_assoc()): ?>
-            <div class="spare-part">
-                <label>Spares Used:</label>
-                <input type="text" name="spareParts[]" value="<?php echo htmlspecialchars($row['spare_part']); ?>" required>
-                <label>Quantity:</label>
-                <input type="text" name="quantities[]" value="<?php echo htmlspecialchars($row['quantity']); ?>" required>
-                <label>Unit Cost:</label>
-                <input type="text" name="unitCosts[]" value="<?php echo htmlspecialchars($row['unit_cost']); ?>" required>
+            <button type="button" onclick="addItem()">+ Add Item/Machine</button>
+            <h3>Spare Parts Used</h3>
+            <div id="sparePartsContainer">
+            <?php $i = 0; while($row = $spares->fetch_assoc()): ?>
+                <div class="spare-part">
+                    <label>Spares Used:</label>
+                    <input type="text" name="spareParts[]" value="<?php echo htmlspecialchars($row['spare_part']); ?>" required>
+                    <label>Quantity:</label>
+                    <input type="text" name="quantities[]" value="<?php echo htmlspecialchars($row['quantity']); ?>" required>
+                    <label>Unit Cost:</label>
+                    <input type="text" name="unitCosts[]" value="<?php echo htmlspecialchars($row['unit_cost']); ?>" required>
+                    <button type="button" class="remove-btn" onclick="this.parentElement.remove()">Remove</button>
+                </div>
+            <?php $i++; endwhile; ?>
             </div>
-        <?php $i++; endwhile; ?>
-        </div>
-        <button type="button" onclick="addSparePart()">+ Add Spare Part</button>
-        <br><br>
-        <input type="submit" value="Save Changes">
-    </form>
+            <button type="button" onclick="addSparePart()">+ Add Spare Part</button>
+            <br><br>
+            <input type="submit" value="Save Changes">
+        </form>
+    </div>
     <script>
         function addItem() {
             const container = document.getElementById('itemDescriptionContainer');
@@ -104,6 +117,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <input type="text" name="machineSerialNumbers[]" required>
                 <label>Job Description/Instruction:</label>
                 <textarea name="jobDescriptions[]" required></textarea>
+                <button type="button" class="remove-btn" onclick="this.parentElement.remove()">Remove</button>
             `;
             container.appendChild(newItem);
         }
@@ -118,6 +132,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <input type="text" name="quantities[]" required>
                 <label>Unit Cost:</label>
                 <input type="text" name="unitCosts[]" required>
+                <button type="button" class="remove-btn" onclick="this.parentElement.remove()">Remove</button>
             `;
             container.appendChild(newSparePart);
         }

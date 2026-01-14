@@ -96,10 +96,10 @@ $conn->close();
     <div class="cont">
         <!--<img src="images/image.png" width="1255" height="150" class="d-inline-block align-top" alt="Logo">-->
     </div>
-    <form id="deliveryNoteForm" method="POST" action="<?php print htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+    <form id="deliveryNoteForm" method="POST" action="<?php print htmlspecialchars($_SERVER["PHP_SELF"]); ?>" onsubmit="return setDeliveryNo()">
         <h2 style="text-align: center;">DELIVERY NOTE</h2>
         
-
+        <input type="hidden" id="deliveryNo" name="deliveryNo">
         <label for="deliverTo">DELIVER TO:</label>
         <input type="text" id="deliverTo" name="deliverTo" required><br><br>
 
@@ -156,6 +156,24 @@ $conn->close();
             `;
             container.appendChild(newItem);
             newItem.style.animation = 'fadeIn 0.4s ease-out';
+        }
+
+        function generateDeliveryNo() {
+            let lastDeliveryNo = localStorage.getItem('lastDeliveryNo');
+            if (!lastDeliveryNo) {
+                lastDeliveryNo = 10;
+            }
+            const newDeliveryNo = parseInt(lastDeliveryNo) + 1;
+            localStorage.setItem('lastDeliveryNo', newDeliveryNo);
+            return `0${newDeliveryNo}`;
+        }
+
+        function setDeliveryNo() {
+            const deliveryNoField = document.getElementById('deliveryNo');
+            if (!deliveryNoField.value) {
+                deliveryNoField.value = generateDeliveryNo();
+            }
+            return true; // allow form to submit
         }
         async function generatePDF() {
             function generateDeliveryNo() {

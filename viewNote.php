@@ -109,6 +109,48 @@ if(isset($_GET["DelId"])){
             font-style: italic;
             padding: 32px !important;
         }
+        /* Footer Styling */
+        footer {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-section h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section h4 {
+            font-size: 0.95rem;
+            font-weight: 400;
+            margin: 0.5rem 0;
+            opacity: 0.9;
+        }
+
+        .footer-bottom {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body>
@@ -288,5 +330,26 @@ if(isset($_GET["DelId"])){
             doc.save(`DeliveryNote_${note.delivery_no || 'Unknown'}.pdf`);
         }
     </script>
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>Pekar Industrial & Construction LTD</h3>
+                <ul>
+                    <li><h4>Location: Kasarani Mwiki Road</h4></li>
+                    <li><h4>P.O Box 4384-00200 City Square Nairobi</h4></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Contact Info</h3>
+                <ul>
+                    <li><h4>Email: pekar.industrial@gmail.com</h4></li>
+                    <li><h4>Cell Phone: 0721301274/0722301274</h4></li>
+                </ul>
+            </div>
+            <div class="footer-bottom">
+                © 2025 Pekar Industrial & Construction LTD | All rights reserved.
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
