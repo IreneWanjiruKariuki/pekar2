@@ -50,7 +50,7 @@
         }
 
         /* Navigation Styling */
-        nav {
+       /* nav {
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             padding: 1rem 2rem;
             display: flex;
@@ -73,7 +73,7 @@
         nav a:hover {
             background-color: rgba(255, 255, 255, 0.2);
             transform: translateY(-2px);
-        }
+        }*/
 
         .search-container {
             display: flex;
@@ -112,6 +112,11 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
         .cont img {
             max-width: 100%;
             height: auto;
@@ -120,106 +125,149 @@
 
         /* Main Content */
         h1 {
-            text-align: center;
-            color: #1e3c72;
-            margin: 2rem 1rem 1.5rem;
-            font-size: 2rem;
-            font-weight: 700;
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 32px;
+            color: #000;
         }
 
-        /* Table Styling */
+
         .table-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1rem 2rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            background-color: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
         }
 
-        table thead {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
+        thead {
+            background-color: #f3f4f6;
+            border-bottom: 1px solid #e5e7eb;
         }
 
-        table th {
-            padding: 1rem;
+        th {
+            padding: 16px;
             text-align: left;
             font-weight: 600;
+            font-size: 13px;
             letter-spacing: 0.5px;
+            color: #374151;
             text-transform: uppercase;
-            font-size: 0.9rem;
         }
 
-        table td {
-            padding: 1rem;
-            border-bottom: 1px solid #e0e0e0;
+        tbody tr {
+            border-bottom: 1px solid #e5e7eb;
+            transition: background-color 0.15s ease;
         }
 
-        table tbody tr {
-            transition: all 0.3s ease;
+        tbody tr:hover {
+            background-color: #f9fafb;
         }
 
-        table tbody tr:nth-child(odd) {
-            background-color: #f8f9fa;
+        tbody tr:last-child {
+            border-bottom: none;
         }
 
-        table tbody tr:hover {
-            background-color: #e3f2fd;
-            box-shadow: inset 0 0 10px rgba(30, 60, 114, 0.1);
+        td {
+            padding: 16px;
+            color: #1f2937;
+            font-size: 14px;
         }
 
-        /* Button Styling */
+        .empty-state {
+            text-align: center;
+            color: #9ca3af;
+            font-style: italic;
+            padding: 32px !important;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
         button {
-            padding: 0.6rem 1rem;
-            margin: 0.25rem;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 500;
             border: none;
-            border-radius: 4px;
-            font-weight: 600;
+            border-radius: 5px;
             cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
-        button:first-of-type {
-            background-color: #4CAF50;
+        button:active {
+            transform: scale(0.98);
+        }
+
+        /* Edit Button */
+        button:nth-child(1) {
+            background-color: #a7b0c0ff;
+            color: grey;
+        }
+
+        button:nth-child(1):hover {
+            background-color: #b3c0e0ff;
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+        }
+
+        /* Download Button */
+        button:nth-child(2) {
+            background-color: #63dd8aff;
+            color: grey;
+        }
+
+        button:nth-child(2):hover {
+            background-color:#b3c0e0ff;
+            box-shadow: 0 4px 6px rgba(74, 188, 139, 0.2);
+        }
+
+        /* Delete Button */
+        button:nth-child(3) {
+            background-color: #e34343ff;
             color: white;
         }
 
-        button:first-of-type:hover {
-            background-color: #45a049;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+        button:nth-child(3):hover {
+            background-color: #c03e3eff;
+            box-shadow: 0 4px 6px rgba(220, 38, 38, 0.2);
         }
 
-        button:nth-of-type(2) {
-            background-color: #2196F3;
-            color: white;
-        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body {
+                padding: 16px;
+            }
 
-        button:nth-of-type(2):hover {
-            background-color: #0b7dda;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
-        }
+            h1 {
+                font-size: 24px;
+                margin-bottom: 24px;
+            }
 
-        button:nth-of-type(3) {
-            background-color: #f44336;
-            color: white;
-        }
+            th, td {
+                padding: 12px;
+                font-size: 12px;
+            }
 
-        button:nth-of-type(3):hover {
-            background-color: #da190b;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(244, 67, 54, 0.3);
+            button {
+                padding: 6px 12px;
+                font-size: 11px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
         }
 
         /* Empty State */
@@ -303,10 +351,10 @@
             }
         }
     </style>
-    
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <nav>
+    <!--<nav>
         <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
             <a href="./">HOME</a>
             <a href="viewcard.php">VIEW JOB CARDS</a>
@@ -317,15 +365,30 @@
             <input type="text" placeholder="Search..." id="search">
             <button type="submit">🔍</button>
         </div>
-    </nav>
+    </nav>-->
 
+    <nav class="nav">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-text">PEKAR</span>
+                <span class="logo-subtext">Industrial & Construction</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="home.html" class="nav-link">Home</a></li>
+                <li><a href="" class="nav-link active">Job cards</a></li>
+                <li><a href="viewNote.php" class="nav-link">Delivery notes</a></li>
+                <li><a href="viewInvoice.php" class="nav-link">Invoices</a></li>
+            </ul>
+        </div>
+    </nav>
     <div class="cont">
         <img src="images/image.png" alt="Pekar Industrial & Construction Logo">
     </div>
 
     
-
-    <h1>Job Cards</h1>
+<div class="container">
+    <h1 style="text-align: center; margin-top: 2rem;">JOB CARDS</h1>
+    <!--<p class="hero-subtitle" style="color: var(--color-slate-light); text-align: center; max-width: 800px; margin: 0 auto; margin-bottom: 2rem;">Comprehensive job tracking and management system for all your construction and installation projects. Monitor progress, assign tasks, and maintain detailed records.</p>-->
 
     <div class="table-container">
         <table>
@@ -339,36 +402,35 @@
                 </tr>
             </thead>
             <tbody>
-                <?php
-                
-                // Fetch job cards with only the required columns
-                $sql="SELECT jobNo, customer_name, lpo_no, date FROM card ORDER BY jobNo DESC";
-                $result = $conn->query($sql);
+                 <?php
+                    // Fetch job cards with only the required columns
+                    $sql="SELECT jobNo, customer_name, lpo_no, date FROM card ORDER BY jobNo DESC";
+                    $result = $conn->query($sql);
 
-                if ($result->num_rows > 0) {
-                    while ($row = $result->fetch_assoc()) {
-                        echo "<tr>";
-                        echo "<td>" . htmlspecialchars($row["jobNo"]) . "</td>";
-                        echo "<td>" . htmlspecialchars($row["customer_name"]) . "</td>";
-                        echo "<td>" . htmlspecialchars($row["lpo_no"]) . "</td>";
-                        echo "<td>" . htmlspecialchars($row["date"]) . "</td>";
-                        echo "<td>";
-                        echo "<button onclick=\"window.location.href='editcard.php?jobNo=" . urlencode($row["jobNo"]) . "'\">Edit</button>";
-                        echo "<button onclick=\"generatePDF('" . addslashes($row['jobNo']) . "', '" . addslashes($row['customer_name']) . "', '" . addslashes($row['lpo_no']) . "', '" . addslashes($row['date']) . "')\">Download</button>";
-                        echo "<button onclick=\"if(confirm('Are you sure you want to delete this job card?')) window.location.href='viewcard.php?DelId=" . urlencode($row["jobNo"]) . "'\">Delete</button>";
-                        echo "</td>";
-                        echo "</tr>";
+                    if ($result->num_rows > 0) {
+                        while ($row = $result->fetch_assoc()) {
+                            echo "<tr>";
+                            echo "<td>" . htmlspecialchars($row["jobNo"]) . "</td>";
+                            echo "<td>" . htmlspecialchars($row["customer_name"]) . "</td>";
+                            echo "<td>" . htmlspecialchars($row["lpo_no"]) . "</td>";
+                            echo "<td>" . htmlspecialchars($row["date"]) . "</td>";
+                            echo "<td><div class='actions'>";
+                            echo "<button onclick=\"window.location.href='editcard.php?jobNo=" . urlencode($row["jobNo"]) . "'\">Edit</button>";
+                            echo "<button onclick=\"generatePDF('" . addslashes($row['jobNo']) . "', '" . addslashes($row['customer_name']) . "', '" . addslashes($row['lpo_no']) . "', '" . addslashes($row['date']) . "')\">Download</button>";
+                            echo "<button onclick=\"if(confirm('Are you sure you want to delete this job card?')) window.location.href='viewcard.php?DelId=" . urlencode($row["jobNo"]) . "'\">Delete</button>";
+                            echo "</div></td>";
+                            echo "</tr>";
+                        }
+                    } else {
+                        echo "<tr><td colspan='5' class='empty-state'>No job cards found</td></tr>";
                     }
-                } else {
-                    echo "<tr><td colspan='5' class='empty-state'>No job cards found</td></tr>";
-                }
 
-                $conn->close();
+                    $conn->close();
                 ?>
             </tbody>
         </table>
     </div>
-
+</div>
     <script>
         async function generatePDF(jobNo) {
             const { jsPDF } = window.jspdf;
