@@ -95,7 +95,8 @@ if (isset($_POST['create_invoice'])) {
         $description = mysqli_real_escape_string($conn, $descriptions[$index]);
         $quantity = mysqli_real_escape_string($conn, $quantities[$index]);
         $unit_price = mysqli_real_escape_string($conn, $unit_prices[$index]);
-        $vatable = isset($_POST['vatables'][$index]) ? 1 : 0;
+        $row = $_POST['item_row'][$index];
+        $vatable = isset($_POST['vatables'][$row]) ? 1 : 0;
 
         $total_cost = $quantity * $unit_price;
         $vat = $vatable ? $total_cost * 0.16 : 0;
@@ -167,6 +168,7 @@ $conn->close();
         <h3>ITEMS</h3>
         <div id="itemsContainer">
             <div class="item-description">
+                <input type="hidden" name="item_row[]" value="0">
                 <label for="item1">ITEM CODE:</label>
                 <input type="text" id="item1" name="items[]" class="item-code" required>
                 <label for="description1">DESCRIPTION:</label>
@@ -176,7 +178,7 @@ $conn->close();
                 <label for="unit1">UNIT PRICE:</label>
                 <input type="text" id="unit1" name="unit_prices[]"class="item-unit" required>
                 <label for="vatable1" class="inline-label">VATABLE:</label>
-                <input type="checkbox" id="vatable1" name="vatables[]"class="item-vatable large-checkbox">
+                <input type="checkbox" id="vatable1" name="vatables[0]"class="item-vatable large-checkbox">
             </div>
         </div>
         <button type="button" onclick="addItem()">+ Add Item</button><br><br>
@@ -215,6 +217,7 @@ $conn->close();
             const newItem = document.createElement('div');
             newItem.classList.add('item-description');
             newItem.innerHTML = `
+            <input type="hidden" name="item_row[]" value="${itemCount-1}">
             <label for="item${itemCount}">ITEM CODE:</label>
             <input type="text" id="item${itemCount}" name="items[]" class="item-code" required>
             <label for="description${itemCount}">DESCRIPTION:</label>
@@ -224,7 +227,7 @@ $conn->close();
             <label for="unit${itemCount}">UNIT PRICE:</label>
             <input type="text" id="unit${itemCount}" name="unit_prices[]" class="item-unit" required>
             <label for="vatable${itemCount}" class="inline-label">VATABLE:</label>
-            <input type="checkbox" id="vatable${itemCount}" name="vatables[]" class="item-vatable large-checkbox">
+            <input type="checkbox" id="vatable${itemCount}" name="vatables[${itemCount-1}]" class="item-vatable large-checkbox">
             `;
             container.appendChild(newItem);
         }
