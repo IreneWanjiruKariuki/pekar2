@@ -84,7 +84,7 @@ if (isset($_POST['create_invoice'])) {
     $stmt->close();
 
     // Step 2: Insert into invoice_item
-    $stmt = $conn->prepare("INSERT INTO invoice_item (invoice_no, item_code, description, quantity, unit_price, total_cost) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO invoice_item (invoice_no, item_code, description, quantity, unit_price, total_cost, vatable) VALUES (?, ?, ?, ?, ?, ?, ?)");
     if (!$stmt) {
         echo "Error preparing statement for invoice items: " . $conn->error;
         exit();
@@ -95,7 +95,7 @@ if (isset($_POST['create_invoice'])) {
         $description = mysqli_real_escape_string($conn, $descriptions[$index]);
         $quantity = mysqli_real_escape_string($conn, $quantities[$index]);
         $unit_price = mysqli_real_escape_string($conn, $unit_prices[$index]);
-        $vatable = in_array($index, array_keys($vatables));
+        $vatable = isset($_POST['vatables'][$index]) ? 1 : 0;
 
         $total_cost = $quantity * $unit_price;
         $vat = $vatable ? $total_cost * 0.16 : 0;
@@ -103,7 +103,7 @@ if (isset($_POST['create_invoice'])) {
         $total += $total_cost;
         $totalVAT += $vat;
 
-        $stmt->bind_param("sssidd", $invoice_no, $item, $description, $quantity, $unit_price, $total_cost);
+        $stmt->bind_param("sssiddi", $invoice_no, $item, $description, $quantity, $unit_price, $total_cost, $vatable);
 
         if (!$stmt->execute()) {
             echo "Error executing statement for items: " . $stmt->error;
@@ -140,6 +140,7 @@ $conn->close();
     </div>
     <form id="invoiceForm" method="POST" action="<?php print htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
         <h2 style="text-align: center;">INVOICE</h2>
+        <input type="hidden" id="invoiceNo" name="invoiceNo" value="">
         
 
         <label for="name">NAME:</label>
@@ -184,11 +185,30 @@ $conn->close();
 
         <button type="button" onclick="resetInvoiceNo()"style="background: #f56565;">🔄 Reset Invoice Number</button>
 
-        <input type="submit" name="create_invoice" value="Save invoice">
+        <input type="submit" name="create_invoice" value="Save invoice" onclick="setInvoiceNoBeforeSubmit(event)">
     </form>
     <script>
-        let itemCount = 1;
+        // Function to generate invoice number
+        function generateInvoiceNo() {
+            let lastInvoiceNo = localStorage.getItem('lastInvoiceNo');
+            if (!lastInvoiceNo) {
+                lastInvoiceNo = 200;
+            }
+            const newInvoiceNo = parseInt(lastInvoiceNo) + 1;
+            localStorage.setItem('lastInvoiceNo', newInvoiceNo);
+            return `00${newInvoiceNo}`;
+        }
 
+        // Set invoice number before form submit
+        function setInvoiceNoBeforeSubmit(event) {
+            const invoiceNoField = document.getElementById('invoiceNo');
+            if (invoiceNoField.value === '') {
+                invoiceNoField.value = generateInvoiceNo();
+            }
+            // Allow form to submit
+        }
+
+        let itemCount = 1;
         function addItem() {
             itemCount++;
             const container = document.getElementById('itemsContainer');

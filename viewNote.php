@@ -347,7 +347,7 @@ if(isset($_GET["DelId"])){
                 </ul>
             </div>
             <div class="footer-bottom">
-                © 2025 Pekar Industrial & Construction LTD | All rights reserved.
+                © 2026 Pekar Industrial & Construction LTD | All rights reserved.
             </div>
         </div>
     </footer>
