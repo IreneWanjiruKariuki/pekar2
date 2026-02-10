@@ -22,6 +22,21 @@ if ($invoice_no) {
     $stmt->close();
 }
 
+if (!empty($_POST['removed_items'])) {
+    $removed = json_decode($_POST['removed_items'], true);
+    if (is_array($removed) && count($removed) > 0) {
+        $in = str_repeat('?,', count($removed) - 1) . '?';
+        $types = str_repeat('s', count($removed));
+        $params = $removed;
+        $params[] = $invoice_no;
+        $types .= 's';
+        $sql = "DELETE FROM invoice_item WHERE item_code IN ($in) AND invoice_no=?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param($types, ...$params);
+        $stmt->execute();
+        $stmt->close();
+    }
+}
 // Handle update
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_invoice'])) {
     $name = $_POST['name'];
@@ -39,23 +54,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_invoice'])) {
 
     // Update items
     if (isset($_POST['items'])) {
-        foreach ($_POST['items'] as $idx => $item_code) {
-            $description = $_POST['descriptions'][$idx];
-            $quantity = $_POST['quantities'][$idx];
-            $unit_price = $_POST['unit_prices'][$idx];
-            $vatable = isset($_POST['vatables'][$idx]) ? 1 : 0;
-            //$item_id = $_POST['item_ids'][$idx];
+        foreach ($_POST['items'] as $index => $item_code) {
+            $description = $_POST['descriptions'][$index];
+            $quantity = $_POST['quantities'][$index];
+            $unit_price = $_POST['unit_prices'][$index];
+            $row = $_POST['item_row'][$index];
+            $vatable = isset($_POST['vatables'][$row]) ? 1 : 0;
+            //$item_id = $_POST['item_ids'][$index];
 
             $total_cost = $quantity * $unit_price;
-            $stmt = $conn->prepare("UPDATE invoice_item SET item_code=?, description=?, quantity=?, unit_price=?, total_cost=?, vatable=? WHERE id=?");
-            $stmt->bind_param("ssiddii", $item_code, $description, $quantity, $unit_price, $total_cost, $vatable, $item_id);
+            $stmt = $conn->prepare("UPDATE invoice_item SET description=?, quantity=?, unit_price=?, total_cost=?, vatable=? WHERE invoice_no=? AND item_code=?");
+            $stmt->bind_param("siddsis", $description, $quantity, $unit_price, $total_cost, $vatable, $invoice_no, $item_code);
             $stmt->execute();
             $stmt->close();
-        }
+        } 
+        // Recalculate totals
+        $stmt = $conn->prepare("SELECT SUM(total_cost) as total, SUM(CASE WHEN vatable=1 THEN total_cost*0.16 ELSE 0 END) as vat FROM invoice_item WHERE invoice_no=?");
+        $stmt->bind_param("s", $invoice_no);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        $total = $row['total'] ?? 0;
+        $vat = $row['vat'] ?? 0;
+        $grand_total = $total + $vat;
+        $stmt->close();
+
+        // Update invoice table
+        $stmt = $conn->prepare("UPDATE invoice SET total=?, vat=?, grand_total=? WHERE invoice_no=?");
+        $stmt->bind_param("ddds", $total, $vat, $grand_total, $invoice_no);
+        $stmt->execute();
+        $stmt->close();
     }
     echo "<script>alert('Invoice updated successfully!');window.location='viewInvoice.php';</script>";
     exit();
-}
+} 
 ?>
 
 <!DOCTYPE html>
@@ -67,17 +99,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_invoice'])) {
     <style>
         .container { max-width: 800px; margin: 2rem auto; background: #fff; padding: 1rem; border-radius: 8px; }
         .remove-btn { background: #e34343ff; margin-left: 1rem; margin-top: 1.5rem; }
+        
+        .large-checkbox {
+            transform: scale(1.8); /* Increase the size of the checkbox */
+            margin-right: 10px; /* Optional: Add some space to the right of the checkbox */
+            
+        }
+        .inline-label {
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     </style>
 </head>
 <body>
     <nav class="nav">
         <!-- ...existing nav code... -->
     </nav>
-    <div class="container">
+    <div class="container" id="editInvoiceForm">
         <h2>Edit Invoice</h2>
         <?php if ($invoice): ?>
         <form method="POST">
-            <label>Invoice No: <b><?= htmlspecialchars($invoice['invoice_no']) ?></b></label><br>
             <label>Name:</label>
             <input type="text" name="name" value="<?= htmlspecialchars($invoice['name']) ?>" required><br>
             <label>Address:</label>
@@ -93,9 +136,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_invoice'])) {
             <label>Date:</label>
             <input type="date" name="dated" value="<?= htmlspecialchars($invoice['date']) ?>" required><br>
             <h3>Items</h3>
-            <?php foreach ($items as $idx => $item): ?>
-                <div class="item-description ite">
-                    <!--<input type="hidden" name="item_ids[]" value="<?= $item['id'] ?>">-->
+            <?php foreach ($items as $index => $item): ?>
+                    <div class="item-description ite">
+                        <input type="hidden" name="item_row[]" value="<?= $index ?>">
+                        <!--<input type="hidden" name="item_ids[]" value="<?= $item['id'] ?>"> -->
                     <label>Item Code:</label>
                     <input type="text" name="items[]" class="item-code" value="<?= htmlspecialchars($item['item_code']) ?>" required>
                     <label>Description:</label>
@@ -105,12 +149,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_invoice'])) {
                     <label>Unit Price:</label>
                     <input type="text" step="0.01" name="unit_prices[]" class="item-unit" value="<?= htmlspecialchars($item['unit_price']) ?>" required>
                     <label class="inline-label">VATABLE:</label>
-                    <input type="checkbox" name="vatables[]" class="item-vatable large-checkbox" <?= ($item['vatable']) ? 'checked' : '' ?>>
-                    <button type="button" class="remove-btn" onclick="this.parentElement.remove()">Remove</button>
+                    <input type="checkbox" name="vatables[<?= $index ?>]" class="item-vatable large-checkbox" <?= ($item['vatable']) ? 'checked' : '' ?>><br>
+                    <button type="button" class="remove-btn" onclick="removeItem(this, '<?= htmlspecialchars($item['item_code']) ?>')">Remove</button>
                 </div>
             <?php endforeach; ?>
+            <input type="hidden" name="removed_items" id="removed_items" value="">
             <button type="button" onclick="addItem()">+ Add Item</button>
-            <input type="submit" name="update_invoice" value="Update Invoice">
+            <input type="submit" name="update_invoice" value="Save changes">
         </form>
         <?php else: ?>
             <p>No invoice selected or invoice not found.</p>
@@ -134,6 +179,17 @@ function calculateTotals() {
     const grandTotal = total + totalVAT;
     return { total, totalVAT, grandTotal };
 }
+let removedItemCodes = [];
+function removeItem(btn, itemCode) {
+    btn.parentElement.remove();
+    if (itemCode) {
+        removedItemCodes.push(itemCode);
+        document.getElementById('removed_items').value = JSON.stringify(removedItemCodes);
+    }
+}
+document.getElementById('editInvoiceForm').addEventListener('submit', function() {
+    document.getElementById('removed_items').value = JSON.stringify(removedItemCodes);
+});
 
 function showTotals() {
     const { total, totalVAT, grandTotal } = calculateTotals();

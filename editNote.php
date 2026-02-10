@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 				<label>ITEM: <input type="text" name="items[]" required></label>
 				<label>DESCRIPTION: <textarea name="descriptions[]" required></textarea></label>
 				<label>UNIT: <input type="text" name="units[]" required></label>
-				<label>QTY: <input type="number" name="quantities[]" required></label>
+				<label>QTY: <input type="text" name="quantities[]" required></label>
 				<button type="button" class="remove-btn" onclick="this.parentElement.remove()">Remove</button>
 			`;
 			container.appendChild(div);
@@ -130,7 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 						<input type="text" name="units[]" value="<?php echo htmlspecialchars($item['unit']); ?>" required>
 					</label>
 					<label>QTY:
-						<input type="number" name="quantities[]" value="<?php echo htmlspecialchars($item['quantity']); ?>" required>
+						<input type="text" name="quantities[]" value="<?php echo htmlspecialchars($item['quantity']); ?>" required>
 					</label>
 					<button type="button" class="remove-btn" onclick="this.parentElement.remove()">Remove</button>
 				</div>
