@@ -213,118 +213,201 @@ if(isset($_GET["DelId"])){
 		</div>
 	</div>
 	<script>
-		async function generatePDF(invoiceNo) {
-			const { jsPDF } = window.jspdf;
-			// Fetch all invoice data from the server
-			const response = await fetch(`getInvoiceData.php?invoice_no=${encodeURIComponent(invoiceNo)}`);
-			const data = await response.json();
-			if (!data.invoice) {
-				alert('Could not fetch invoice data.');
-				return;
-			}
-			const invoice = data.invoice;
-			const items = data.items;
+		   async function generatePDF(invoiceNo) {
+			   const { jsPDF } = window.jspdf;
+			   // Fetch all invoice data from the server
+			   const response = await fetch(`getInvoiceData.php?invoice_no=${encodeURIComponent(invoiceNo)}`);
+			   const data = await response.json();
+			   if (!data.invoice) {
+				   alert('Could not fetch invoice data.');
+				   return;
+			   }
+			   const invoice = data.invoice;
+			   const items = data.items;
 
-			const doc = new jsPDF();
-			// Add Image at the top left corner
-			const img = new Image();
-			img.src = 'image.png'; // Replace with your image path
-			doc.addImage(img, 'PNG', 10, 10, 50, 35);
-			doc.setFont("helvetica", "normal");
-			doc.setFontSize(10);
-			doc.setTextColor(128, 128, 128);
-			doc.text("Plumbing works, Mechanical & Electrical plant installations HVAC, Infra-Red thermography and other maintenance solutions and General Contractors", 70, 15, { maxWidth: 140 });
-			doc.text("Location: Kasarani Mwiki Road", 70, 25);
-			doc.text("P.O BOX 4384-00200 City Square Nairobi", 70, 31);
-			doc.text("Email: pekar.industrial@gmail.com", 70, 37);
-			doc.text("Cell Phone: 0722301274/0721301274", 70, 43);
+			   const doc = new jsPDF();
+			   // Add Image at the top left corner
+			   const img = new Image();
+			   img.src = 'image.png'; // Replace with your image path
+			   doc.addImage(img, 'PNG', 10, 10, 50, 35);
 
-			// Header
-			doc.setFont('helvetica', 'bold');
-			doc.setFontSize(18);
-			doc.setTextColor(0, 0, 0);
-			doc.setLineWidth(0.7);
-			doc.rect(15, 50, 180, 10);
-			doc.text('INVOICE', 85, 57);
-			doc.setFont('helvetica', 'normal');
+			   // Add two small paragraphs on the top right corner
+			   doc.setFont("helvetica", "normal");
+			   doc.setFontSize(10);
+			   doc.setTextColor(128, 128, 128);
+			   doc.text("Plumbing works, Mechanical & Electrical plant installations HVAC, Infra-Red thermography and other maintenance solutions and General Contractors", 70, 15, { maxWidth: 140 });
+			   doc.text("Location: Kasarani Mwiki Road", 70, 25);
+			   doc.text("P.O BOX 4384-00200 City Square Nairobi", 70, 29.5);
+			   doc.text("Email: pekar.industrial@gmail.com", 70, 33.5);
+			   doc.text("Cell Phone: 0722301274/0721301274", 70, 38);
+			   doc.text("PIN Number: P051398673W", 70, 42);
 
-			// Adding form details
-			doc.setFontSize(11);
-			doc.setLineWidth(0.2);
-			doc.rect(20, 63, 90, 7);
-			doc.setTextColor(50, 50, 50);
-			doc.text(`CUSTOMER:`, 22, 67.5);
-			doc.setTextColor(0, 0, 0);
-			doc.text(`${invoice.name}`, 54, 67.5);
+			   // Adding content to PDF
+			   doc.setFont("helvetica", "bold");
+			   doc.setFontSize(18);
+			   doc.setTextColor(0, 0, 0);
+			   doc.setLineWidth(0.7);
+			   doc.rect(15, 50, 180, 10);
+			   doc.text("REF: INVOICE", 81, 57);
+			   doc.setFont("helvetica", "normal");
 
-			doc.rect(115, 63, 80, 7);
-			doc.setTextColor(50, 50, 50);
-			doc.text(`INVOICE NO:`, 117, 67.5);
-			doc.setTextColor(0, 0, 0);
-			doc.text(`${invoice.invoice_no}`, 153, 67.5);
+			   // Adding form details
+			   doc.setFontSize(11);
+			   doc.setLineWidth(0.2);
+			   doc.setTextColor(50, 50, 50);
 
-			doc.rect(20, 73, 85, 8);
-			doc.rect(65, 73, 40, 8);
-			doc.setTextColor(50, 50, 50);
-			doc.text(`LPO NO:`, 22, 77.5);
-			doc.setTextColor(0, 0, 0);
-			doc.text(`${invoice.lpo_no}`, 67, 77.5);
+			   doc.text(`Name:`, 20, 66);
+			   doc.setTextColor(0, 0, 0);
+			   doc.text(`${invoice.name}`, 36, 66);
+			   doc.text(`_____________________`, 35, 66.5);
 
-			doc.rect(105, 73, 88, 8);
-			doc.rect(146, 73, 47, 8);
-			doc.setTextColor(50, 50, 50);
-			doc.text(`DATE:`, 107, 77.5);
-			doc.setTextColor(0, 0, 0);
-			doc.text(`${invoice.date}`, 148, 77.5);
+			   doc.setTextColor(50, 50, 50);
+			   doc.text(`Invoice Number:`, 103, 66);
+			   doc.setTextColor(0, 0, 0);
+			   doc.text(`${invoice.invoice_no}`, 137, 66);
+			   doc.text(`___________________`, 136, 66.5);
 
-			doc.rect(20, 81, 85, 10);
-			doc.rect(65, 81, 40, 10);
-			doc.setTextColor(50, 50, 50);
-			doc.text(`AMOUNT:`, 22, 85.5);
-			doc.setTextColor(0, 0, 0);
-			doc.text(`${invoice.amount}`, 67, 85.5);
+			   doc.setTextColor(50, 50, 50);
+			   doc.text(`Address:`, 20, 73);
+			   doc.setTextColor(0, 0, 0);
+			   doc.text(`${invoice.address || ''}`, 40, 73);
+			   doc.text(`____________________`, 39, 73.5);
 
-			let yPos=99;
-			const itemsHeader = (doc, yPos) => { 
-				doc.setTextColor(128, 128, 128);
-				doc.setFont("helvetica", "bold");
-				doc.text(`ITEM`, 20, yPos);
-				doc.text(`DESCRIPTION`, 60, yPos);
-				doc.text(`QTY`, 140, yPos);
-				doc.text(`UNIT PRICE`, 160, yPos);
-				doc.text(`TOTAL`, 185, yPos);
-				doc.setTextColor(0, 0, 0);
-				doc.setFont("helvetica", "normal");
-			};
-			itemsHeader(doc, 99);
-			yPos += 1;
-			items.forEach((item, index) => {
-				const descriptionLines = doc.splitTextToSize(item.description, 70);
-				const lineHeight = 4.5;
-				const itemHeight = descriptionLines.length * lineHeight;
-				if (yPos + itemHeight> 270) {
-					doc.addPage();
-					yPos = 20;
-					itemsHeader(doc, yPos);
-					yPos += 5;
-				}
-				doc.text(`${item.item}`, 20, yPos+lineHeight);
-				doc.text(` ${item.description}`, 60, yPos+lineHeight, { maxWidth: 70 });
-				doc.text(`${item.quantity}`, 140, yPos+lineHeight);
-				doc.text(`${item.unit_price}`, 160, yPos+lineHeight);
-				doc.text(`${item.total}`, 185, yPos+lineHeight);
-				yPos += itemHeight + 2;
-			});
-			yPos+=8;
-			if (yPos > 270) {
-				doc.addPage();
-				yPos = 20;
-			}
-			doc.setFont("helvetica", "bold");
-			doc.rect(20, yPos, 173, 30);
-			doc.text(`Thank you for your business!`, 22, yPos+15.5);
-			doc.save(`Invoice_${invoice.invoice_no || 'Unknown'}.pdf`);
-		}
+			   doc.setTextColor(50, 50, 50);
+			   doc.text(`LPO Number:`, 103, 73);
+			   doc.setTextColor(0, 0, 0);
+			   doc.text(`${invoice.lpo_no}`, 133, 73);
+			   doc.text(`_____________________`, 132, 73.5);
+
+			   doc.setTextColor(50, 50, 50);
+			   doc.text(`Contact:`, 20, 80);
+			   doc.setTextColor(0, 0, 0);
+			   doc.text(`${invoice.contact || ''}`, 39, 80);
+			   doc.text(`____________________`, 38, 80.5);
+
+			   doc.setTextColor(50, 50, 50);
+			   doc.text(`Delivery no/Job Card no:`, 103, 80);
+			   doc.setTextColor(0, 0, 0);
+			   doc.text(`${invoice.delivery_no || ''}`, 150, 80);
+			   doc.text(`_____________`, 149, 80.5);
+
+			   doc.setTextColor(50, 50, 50);
+			   doc.text(`Tel:`, 20, 87);
+			   doc.setTextColor(0, 0, 0);
+			   doc.text(`${invoice.tel || ''}`, 33, 87);
+			   doc.text(`____________________`, 32, 87.5);
+
+			   doc.setTextColor(50, 50, 50);
+			   doc.text(`Date:`, 103, 87);
+			   doc.setTextColor(0, 0, 0);
+			   doc.text(`${invoice.date || ''}`, 118, 87);
+			   doc.text(`____________________`, 117, 87.5);
+
+			   // Table header
+			   const addTableHeader = (doc, yPos) => {
+				   doc.setTextColor(128, 128, 128);
+				   doc.text(`ITEM CODE`, 12, yPos, { maxWidth: 21 });
+				   doc.text(`DESCRIPTION`, 31, yPos);
+				   doc.text(`QTY`, 116, yPos);
+				   doc.text(`UNIT PRICE`, 131, yPos, { maxWidth: 20 });
+				   doc.text(`VAT`, 155, yPos, { maxWidth: 20 });
+				   doc.text(`TOTAL COST`, 179, yPos, { maxWidth: 20 });
+				   doc.setTextColor(0, 0, 0);
+			   };
+
+			   let yPos = 97;
+			   addTableHeader(doc, yPos);
+			   yPos += 5;
+
+			   // Adding items
+			   items.forEach((item, index) => {
+				   if (yPos > 270) {
+					   doc.addPage();
+					   yPos = 20;
+					   addTableHeader(doc, yPos);
+					   yPos += 5;
+				   }
+				   const itemCode = item.item_code || '';
+				   const description = item.description || '';
+				   const quantity = item.quantity || '';
+				   const unitPrice = parseFloat(item.unit_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+				   const totalCost = parseFloat(item.unit_price) * parseFloat(quantity);
+				   const isVatable = item.vatable == 1;
+				   const vat = isVatable ? totalCost * 0.16 : 0;
+				   const totalCostWithVAT = (totalCost).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+				   const descriptionLines = doc.splitTextToSize(description, 85);
+				   const lineHeight = 4.5;
+				   const itemHeight = descriptionLines.length * lineHeight;
+
+				   doc.text(`${itemCode}`, 13, yPos + lineHeight);
+				   doc.text(descriptionLines, 26, yPos + lineHeight, { maxWidth: 85 });
+				   doc.text(`${quantity}`, 118, yPos + lineHeight);
+				   doc.text(`${unitPrice}`, 129, yPos + lineHeight);
+				   doc.text(`${vat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 152.5, yPos + lineHeight);
+				   doc.text(`${totalCostWithVAT}`, 177, yPos + lineHeight);
+
+				   yPos += itemHeight + 1; // Adding some space between items
+			   });
+
+			   // Adding totals
+			   let total = parseFloat(invoice.total) || 0;
+			   let totalVAT = parseFloat(invoice.vat) || 0;
+			   let grandTotal = parseFloat(invoice.grand_total) || 0;
+
+			   if (yPos > 270) {
+				   doc.addPage();
+				   yPos = 20;
+			   }
+			   yPos += 3;
+			   doc.setTextColor(128, 128, 128);
+			   doc.setFont("helvetica", "bold");
+			   doc.text(`TOTAL:`, 56, yPos + 6.5);
+			   doc.setTextColor(0, 0, 0);
+			   doc.text(`${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 87, yPos + 6.5);
+
+			   yPos += 8;
+			   doc.setTextColor(128, 128, 128);
+			   doc.text(`TOTAL VAT:`, 56, yPos + 6.5);
+			   doc.setTextColor(0, 0, 0);
+			   doc.text(`${totalVAT.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 87, yPos + 6.5);
+
+			   yPos += 8;
+			   doc.setTextColor(128, 128, 128);
+			   doc.text(`GRAND TOTAL:`, 56, yPos + 6.5, { maxWidth: 30 });
+			   doc.setTextColor(0, 0, 0);
+			   doc.text(`${grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 87, yPos + 6.5);
+
+			   if (yPos > 270) {
+				   doc.addPage();
+				   yPos = 20;
+			   }
+			   yPos += 13;
+			   doc.setFont("helvetica", "normal");
+			   doc.text(`Signed:`, 20, yPos + 7); 
+			   img.src = 'final_signature.jpg'; // Replace with your image path
+			   doc.addImage(img, 'JPG', 40, yPos - 5, 25, 25);
+
+			   if (yPos > 270) {
+				   doc.addPage();
+				   yPos = 20;
+			   }
+			   yPos += 25;
+			   doc.text(`______________________________________________`, 20, yPos);
+			   doc.text(`FOR: PEKAR INDUSTRIAL AND CONSTRUCTION LTD`, 20, yPos - 1);
+
+			   if (yPos > 270) {
+				   doc.addPage();
+				   yPos = 20;
+			   }
+			   yPos += 3.5;
+			   doc.rect(20, yPos, 180, 15);
+			   doc.text(`NOTE: Cheque to be drawn to Pekar Industrial and Construction Limited`, 45, yPos + 5);
+			   doc.text(`BANK: Consolidated Bank of Kenya A/C No.10011301000125, Branch:Koinange Street`, 34, yPos + 11);
+
+			   // Saving the PDF
+			   doc.save(`Invoice_${invoice.invoice_no || 'Unknown'}.pdf`);
+		   }
 	</script>
 	<footer>
         <div class="footer-container">
