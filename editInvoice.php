@@ -22,21 +22,6 @@ if ($invoice_no) {
     $stmt->close();
 }
 
-if (!empty($_POST['removed_items'])) {
-    $removed = json_decode($_POST['removed_items'], true);
-    if (is_array($removed) && count($removed) > 0) {
-        $in = str_repeat('?,', count($removed) - 1) . '?';
-        $types = str_repeat('s', count($removed));
-        $params = $removed;
-        $params[] = $invoice_no;
-        $types .= 's';
-        $sql = "DELETE FROM invoice_item WHERE item_code IN ($in) AND invoice_no=?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param($types, ...$params);
-        $stmt->execute();
-        $stmt->close();
-    }
-}
 // Handle update
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_invoice'])) {
     $name = $_POST['name'];
@@ -60,14 +45,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_invoice'])) {
             $unit_price = $_POST['unit_prices'][$index];
             $row = $_POST['item_row'][$index];
             $vatable = isset($_POST['vatables'][$row]) ? 1 : 0;
-            //$item_id = $_POST['item_ids'][$index];
-
             $total_cost = $quantity * $unit_price;
             $stmt = $conn->prepare("UPDATE invoice_item SET description=?, quantity=?, unit_price=?, total_cost=?, vatable=? WHERE invoice_no=? AND item_code=?");
             $stmt->bind_param("siddsis", $description, $quantity, $unit_price, $total_cost, $vatable, $invoice_no, $item_code);
             $stmt->execute();
             $stmt->close();
-        } 
+        }
+        // Insert new items if not already in DB
+        $existing_codes = [];
+        $stmt = $conn->prepare("SELECT item_code FROM invoice_item WHERE invoice_no=?");
+        $stmt->bind_param("s", $invoice_no);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        while ($row = $result->fetch_assoc()) {
+            $existing_codes[] = $row['item_code'];
+        }
+        $stmt->close();
+        foreach ($_POST['items'] as $index => $item_code) {
+            if (!in_array($item_code, $existing_codes)) {
+                $description = $_POST['descriptions'][$index];
+                $quantity = $_POST['quantities'][$index];
+                $unit_price = $_POST['unit_prices'][$index];
+                $row = $_POST['item_row'][$index];
+                $vatable = isset($_POST['vatables'][$row]) ? 1 : 0;
+                $total_cost = $quantity * $unit_price;
+                $stmt = $conn->prepare("INSERT INTO invoice_item (invoice_no, item_code, description, quantity, unit_price, total_cost, vatable) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("sssiddi", $invoice_no, $item_code, $description, $quantity, $unit_price, $total_cost, $vatable);
+                $stmt->execute();
+                $stmt->close();
+            }
+        }
+        if (!empty($_POST['removed_items'])) {
+            $removed = json_decode($_POST['removed_items'], true);
+            if (is_array($removed) && count($removed) > 0) {
+                $in = str_repeat('?,', count($removed) - 1) . '?';
+                $types = str_repeat('s', count($removed));
+                $params = $removed;
+                $params[] = $invoice_no;
+                $types .= 's';
+                $sql = "DELETE FROM invoice_item WHERE item_code IN ($in) AND invoice_no=?";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param($types, ...$params);
+                $stmt->execute();
+                $stmt->close();
+            }
+      }
         // Recalculate totals
         $stmt = $conn->prepare("SELECT SUM(total_cost) as total, SUM(CASE WHEN vatable=1 THEN total_cost*0.16 ELSE 0 END) as vat FROM invoice_item WHERE invoice_no=?");
         $stmt->bind_param("s", $invoice_no);
@@ -120,7 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_invoice'])) {
     <div class="container" id="editInvoiceForm">
         <h2>Edit Invoice</h2>
         <?php if ($invoice): ?>
-        <form method="POST">
+        <form method="POST" id="editInvoiceForm">
             <label>Name:</label>
             <input type="text" name="name" value="<?= htmlspecialchars($invoice['name']) ?>" required><br>
             <label>Address:</label>
@@ -201,12 +223,15 @@ function showTotals() {
 </script>
 </body>
 <script>
+let itemCount = document.querySelectorAll('.item-description.ite').length;
 function addItem() {
+    itemCount++;
     const container = document.querySelector('form');
     const addBtn = document.querySelector('button[onclick="addItem()"]');
     const div = document.createElement('div');
     div.className = 'item-description ite';
     div.innerHTML = `
+        <input type="hidden" name="item_row[]" value="${itemCount}">
         <label>Item Code:</label>
         <input type="text" name="items[]" class="item-code" required>
         <label>Description:</label>
@@ -216,7 +241,7 @@ function addItem() {
         <label>Unit Price:</label>
         <input type="text" step="0.01" name="unit_prices[]" class="item-unit" required>
         <label class="inline-label">VATABLE:</label>
-        <input type="checkbox" name="vatables[]" class="item-vatable large-checkbox">
+        <input type="checkbox" name="vatables[${itemCount}]" class="item-vatable large-checkbox"> <br>
         <button type="button" class="remove-btn" onclick="this.parentElement.remove()">Remove</button>
     `;
     container.insertBefore(div, addBtn);
